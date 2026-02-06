@@ -1,0 +1,48 @@
+services:
+  bibs-postgres:
+    image: postgres:18.1
+    container_name: bibs-postgres
+    environment:
+      - POSTGRES_DB=bibs-db
+      - POSTGRES_USER=pgadmin
+      - POSTGRES_PASSWORD=P4ssword!
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  bibs-keycloak:
+    image: quay.io/keycloak/keycloak:26.0.8
+    container_name: bibs-keycloak
+    depends_on:
+      - bibs-postgres
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=kcadmin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=P4ssword!
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=bibs-postgres
+      - KC_DB_URL_DATABASE=keycloak_db
+      - KC_DB_USERNAME=pgadmin
+      - KC_DB_PASSWORD=P4ssword!
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - ./keycloak-realm.json:/opt/keycloak/data/import/keycloak-realm.json
+    ports:
+      - "127.0.0.1:8085:8080"
+
+  bibs-minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: bibs-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=P4ssword!
+      - MINIO_DOMAIN=localhost
+    command:
+      - server
+      - --console-address=:9001
+      - /data
