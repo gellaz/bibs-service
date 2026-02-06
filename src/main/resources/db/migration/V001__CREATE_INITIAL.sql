@@ -186,7 +186,7 @@ CREATE TABLE store_members
     user_id  UUID NOT NULL
 );
 
-CREATE TABLE product_classificationses
+CREATE TABLE product_classifications
 (
     product_id          UUID NOT NULL,
     product_category_id UUID NOT NULL
@@ -261,11 +261,11 @@ ALTER TABLE store_members
 ALTER TABLE store_members
     ADD CONSTRAINT fk_store_members_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-ALTER TABLE product_classificationses
-    ADD CONSTRAINT pk_product_classificationses PRIMARY KEY (product_id, product_category_id);
+ALTER TABLE product_classifications
+    ADD CONSTRAINT pk_product_classifications PRIMARY KEY (product_id, product_category_id);
 
-ALTER TABLE product_classificationses
-    ADD CONSTRAINT fk_product_classificationses_product_id FOREIGN KEY (product_id) REFERENCES products (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE product_classifications
+    ADD CONSTRAINT fk_product_classifications_product_id FOREIGN KEY (product_id) REFERENCES products (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-ALTER TABLE product_classificationses
-    ADD CONSTRAINT fk_product_classificationses_product_category_id FOREIGN KEY (product_category_id) REFERENCES product_categories (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE product_classifications
+    ADD CONSTRAINT fk_product_classifications_product_category_id FOREIGN KEY (product_category_id) REFERENCES product_categories (id) ON UPDATE NO ACTION ON DELETE NO ACTION;

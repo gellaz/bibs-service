@@ -35,7 +35,7 @@ public class Product extends AuditableEntity {
 
   @ManyToMany
   @JoinTable(
-      name = "ProductClassificationses",
+      name = "product_classifications",
       joinColumns = @JoinColumn(name = "productId"),
       inverseJoinColumns = @JoinColumn(name = "productCategoryId"))
   private Set<ProductCategory> productCategories = new HashSet<>();
