@@ -1,4 +1,27 @@
-# BIBS Service
+<h1 align="center">BIBS Service</h1>
+
+<div align="center">
+
+![Java Badge](https://img.shields.io/badge/Java-21-555?logo=openjdk&logoColor=white&labelColor=blue&style=plastic)
+![Spring Boot Badge](https://img.shields.io/badge/Spring%20Boot-4-555?logo=springboot&logoColor=fff&labelColor=6DB33F&style=plastic)
+![Apache Maven Badge](https://img.shields.io/badge/Maven-C71A36?logo=apachemaven&logoColor=fff&style=plastic)
+![Hibernate Badge](https://img.shields.io/badge/Hibernate-59666C?logo=hibernate&logoColor=fff&style=plastic)
+![Liquibase Badge](https://img.shields.io/badge/Flyway-CC0200?logo=flyway&logoColor=fff&style=plastic)
+![JUnit5 Badge](https://img.shields.io/badge/JUnit5-25A162?logo=junit5&logoColor=fff&style=plastic)
+![OpenAPI Initiative Badge](https://img.shields.io/badge/OpenAPI-3.1-555?logo=openapiinitiative&logoColor=fff&labelColor=6BA539&style=plastic)
+![Swagger Badge](https://img.shields.io/badge/Swagger-85EA2D?logo=swagger&logoColor=000&style=plastic)
+<br/>
+![PostgreSQL Badge](https://img.shields.io/badge/PostgreSQL-18-555?logo=postgresql&logoColor=fff&labelColor=4169E1&style=plastic)
+![MinIO Badge](https://img.shields.io/badge/MinIO-C72E49?logo=minio&logoColor=fff&style=plastic)
+<br/>
+![GitHub Actions Badge](https://img.shields.io/badge/GitHub%20Actions-000?logo=githubactions&logoColor=fff&style=plastic)
+![Docker Badge](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff&style=plastic)
+
+</div>
+
+---
+
+## Overview
 
 This is the backend service for the BIBS e-commerce platform.
 
