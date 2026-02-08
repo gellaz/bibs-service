@@ -7,4 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BusinessProfileRepository extends JpaRepository<BusinessProfile, UUID> {
 
   BusinessProfile findFirstByUserId(UUID id);
+
+  boolean existsByVatNumberIgnoreCase(String vatNumber);
+
+  boolean existsByUserId(UUID id);
 }
