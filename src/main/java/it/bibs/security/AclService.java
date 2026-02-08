@@ -1,7 +1,6 @@
 package it.bibs.security;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,20 +9,18 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import it.bibs.user.UserService;
+import it.bibs.util.UnauthorizedException;
 
 @Service("acl")
 @RequiredArgsConstructor
 public class AclService {
 
-  private final UserService userService;
-
-  public Optional<String> getCurrentUserSubject() {
+  public String getCurrentUserSubject() {
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtToken) {
-      return Optional.of(jwtToken.getName());
+      return jwtToken.getName();
     }
-    return Optional.empty();
+    throw new UnauthorizedException("User not authenticated");
   }
 
   private boolean hasRole(final String role) {

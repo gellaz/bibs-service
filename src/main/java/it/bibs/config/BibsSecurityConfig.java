@@ -47,7 +47,13 @@ public class BibsSecurityConfig {
     return http.cors(withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+        .authorizeHttpRequests(
+            authorize ->
+                authorize
+                    .requestMatchers("/actuator/**", "/swagger-ui/**", "/api-docs/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
         .build();
   }

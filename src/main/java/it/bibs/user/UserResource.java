@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,16 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@SecurityRequirement(name = "oauth2")
 @RequiredArgsConstructor
 public class UserResource {
 
   private final UserService userService;
+
+  @GetMapping("/me")
+  public ResponseEntity<UserDTO> getMe() {
+    return ResponseEntity.ok(userService.getMe());
+  }
 
   @GetMapping
   public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -33,6 +41,7 @@ public class UserResource {
   }
 
   @GetMapping("/{userId}")
+  @PreAuthorize("@acl.isAdmin()")
   public ResponseEntity<UserDTO> getUser(@PathVariable final UUID userId) {
     return ResponseEntity.ok(userService.get(userId));
   }

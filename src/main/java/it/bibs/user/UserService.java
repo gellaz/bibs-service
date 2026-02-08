@@ -11,7 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import it.bibs.business_profile.BusinessProfile;
+import it.bibs.business_profile.BusinessProfileRepository;
 import it.bibs.events.BeforeDeleteUser;
+import it.bibs.loyalty_account.LoyaltyAccount;
+import it.bibs.loyalty_account.LoyaltyAccountRepository;
+import it.bibs.security.AclService;
 import it.bibs.util.CustomCollectors;
 import it.bibs.util.NotFoundException;
 
@@ -21,19 +26,42 @@ import it.bibs.util.NotFoundException;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final BusinessProfileRepository businessProfileRepository;
+  private final LoyaltyAccountRepository loyaltyAccountRepository;
   private final ApplicationEventPublisher publisher;
   private final UserMapper userMapper;
+  private final AclService aclService;
+
+  public UserDTO getMe() {
+    final String identitySubject = aclService.getCurrentUserSubject();
+
+    return userRepository
+        .findByIdentitySubject(identitySubject)
+        .map(this::mapToDTO)
+        .orElseThrow(NotFoundException::new);
+  }
 
   public List<UserDTO> findAll() {
     final List<User> users = userRepository.findAll(Sort.by("id"));
-    return users.stream().map(user -> userMapper.updateUserDTO(user, new UserDTO())).toList();
+    return users.stream().map(this::mapToDTO).toList();
   }
 
   public UserDTO get(final UUID id) {
-    return userRepository
-        .findById(id)
-        .map(user -> userMapper.updateUserDTO(user, new UserDTO()))
-        .orElseThrow(NotFoundException::new);
+    return userRepository.findById(id).map(this::mapToDTO).orElseThrow(NotFoundException::new);
+  }
+
+  private UserDTO mapToDTO(final User user) {
+    final UserDTO userDTO = userMapper.toDTO(user);
+    final BusinessProfile businessProfile =
+        businessProfileRepository.findFirstByUserId(user.getId());
+    if (businessProfile != null) {
+      userDTO.setBusinessProfile(userMapper.toBusinessProfileDTO(businessProfile));
+    }
+    final LoyaltyAccount loyaltyAccount = loyaltyAccountRepository.findFirstByUserId(user.getId());
+    if (loyaltyAccount != null) {
+      userDTO.setLoyaltyAccount(userMapper.toLoyaltyAccountDTO(loyaltyAccount));
+    }
+    return userDTO;
   }
 
   public UUID create(final UserDTO userDTO) {

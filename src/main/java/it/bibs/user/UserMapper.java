@@ -6,12 +6,21 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
+import it.bibs.business_profile.BusinessProfile;
+import it.bibs.business_profile.BusinessProfileDTO;
+import it.bibs.loyalty_account.LoyaltyAccount;
+import it.bibs.loyalty_account.LoyaltyAccountDTO;
+
 @Mapper(
     componentModel = MappingConstants.ComponentModel.SPRING,
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
-  UserDTO updateUserDTO(User user, @MappingTarget UserDTO userDTO);
+  UserDTO toDTO(User user);
+
+  BusinessProfileDTO toBusinessProfileDTO(BusinessProfile businessProfile);
+
+  LoyaltyAccountDTO toLoyaltyAccountDTO(LoyaltyAccount loyaltyAccount);
 
   @Mapping(target = "id", ignore = true)
   User updateUser(UserDTO userDTO, @MappingTarget User user);

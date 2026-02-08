@@ -24,12 +24,18 @@ public class UserSynchronizationService {
 
   private void syncWithDatabase(final Map<String, Object> claims) {
     final String subject = claims.get("sub").toString();
-    User user = userRepository.findByIdentitySubject(subject);
-    if (user == null) {
-      log.info("Adding new user after successful authentication: {}", subject);
-      user = new User();
-      user.setIdentitySubject(subject);
-    } else {
+    User user =
+        userRepository
+            .findByIdentitySubject(subject)
+            .orElseGet(
+                () -> {
+                  log.info("Adding new user after successful authentication: {}", subject);
+                  User newUser = new User();
+                  newUser.setIdentitySubject(subject);
+                  return newUser;
+                });
+
+    if (user.getId() != null) {
       log.debug("Updating existing user after successful authentication: {}", subject);
     }
     user.setEmail(((String) claims.get("email")));
