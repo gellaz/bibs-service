@@ -1,4 +1,4 @@
-package it.bibs.business_profile;
+package it.bibs.seller_profile;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -10,18 +10,18 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BusinessProfileDTO {
+public class SellerProfileDTO {
 
   private UUID id;
 
   @NotNull
   @Size(max = 11)
-  @BusinessProfileVatNumberUnique
+  @SellerProfileVatNumberUnique
   private String vatNumber;
 
   @NotNull private VatVerificationStatus vatVerificationStatus;
 
   private OffsetDateTime vatVerifiedAt;
 
-  @NotNull @BusinessProfileUserUnique private UUID user;
+  @NotNull @SellerProfileUserUnique private UUID user;
 }

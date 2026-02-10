@@ -1,4 +1,4 @@
-package it.bibs.business_profile;
+package it.bibs.seller_profile;
 
 import java.time.OffsetDateTime;
 
@@ -17,10 +17,10 @@ import it.bibs.entity.AuditableEntity;
 import it.bibs.user.User;
 
 @Entity
-@Table(name = "business_profiles")
+@Table(name = "seller_profiles")
 @Getter
 @Setter
-public class BusinessProfile extends AuditableEntity {
+public class SellerProfile extends AuditableEntity {
 
   @Column(nullable = false, unique = true, length = 11)
   private String vatNumber;

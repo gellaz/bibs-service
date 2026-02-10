@@ -1,4 +1,4 @@
-package it.bibs.business_profile;
+package it.bibs.seller_profile;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -19,50 +19,46 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 
-/** Validate that the vatNumber value isn't taken yet. */
+/** Validate that the user value isn't taken yet. */
 @Target({FIELD, METHOD, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(
-    validatedBy = BusinessProfileVatNumberUnique.BusinessProfileVatNumberUniqueValidator.class)
-public @interface BusinessProfileVatNumberUnique {
+@Constraint(validatedBy = SellerProfileUserUnique.SellerProfileUserUniqueValidator.class)
+public @interface SellerProfileUserUnique {
 
-  String message() default "{exists.businessProfile.vatNumber}";
+  String message() default "{Exists.sellerProfile.user}";
 
   Class<?>[] groups() default {};
 
   Class<? extends Payload>[] payload() default {};
 
-  class BusinessProfileVatNumberUniqueValidator
-      implements ConstraintValidator<BusinessProfileVatNumberUnique, String> {
+  class SellerProfileUserUniqueValidator
+      implements ConstraintValidator<SellerProfileUserUnique, UUID> {
 
-    private final BusinessProfileService businessProfileService;
+    private final SellerProfileService sellerProfileService;
     private final HttpServletRequest request;
 
-    public BusinessProfileVatNumberUniqueValidator(
-        final BusinessProfileService businessProfileService, final HttpServletRequest request) {
-      this.businessProfileService = businessProfileService;
+    public SellerProfileUserUniqueValidator(
+        final SellerProfileService sellerProfileService, final HttpServletRequest request) {
+      this.sellerProfileService = sellerProfileService;
       this.request = request;
     }
 
     @Override
-    public boolean isValid(final String value, final ConstraintValidatorContext cvContext) {
+    public boolean isValid(final UUID value, final ConstraintValidatorContext cvContext) {
       if (value == null) {
-        // no value present
         return true;
       }
       @SuppressWarnings("unchecked")
       final Map<String, String> pathVariables =
           ((Map<String, String>)
               request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE));
-      final String currentId = pathVariables.get("id");
+      final String currentId = pathVariables.get("sellerProfileId");
       if (currentId != null
-          && value.equalsIgnoreCase(
-              businessProfileService.get(UUID.fromString(currentId)).getVatNumber())) {
-        // value hasn't changed
+          && value.equals(sellerProfileService.get(UUID.fromString(currentId)).getUser())) {
         return true;
       }
-      return !businessProfileService.vatNumberExists(value);
+      return !sellerProfileService.userExists(value);
     }
   }
 }

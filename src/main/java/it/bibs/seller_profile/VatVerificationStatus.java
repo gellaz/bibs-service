@@ -1,4 +1,4 @@
-package it.bibs.business_profile;
+package it.bibs.seller_profile;
 
 public enum VatVerificationStatus {
   PENDING,
