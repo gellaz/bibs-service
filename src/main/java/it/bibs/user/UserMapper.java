@@ -18,6 +18,7 @@ public interface UserMapper {
 
   UserDTO toDTO(User user);
 
+  @Mapping(source = "user.id", target = "user")
   BusinessProfileDTO toBusinessProfileDTO(BusinessProfile businessProfile);
 
   LoyaltyAccountDTO toLoyaltyAccountDTO(LoyaltyAccount loyaltyAccount);
