@@ -51,7 +51,7 @@ When the application is running you can access the following endpoints:
 - Service http://localhost:8080
 - OpenAPI documentation http://localhost:8080/api-docs
 - Swagger UI http://localhost:8080/swagger-ui
-- Keycloak Admin Console http://localhost:8085 (username: `pgadmin`, password: `P4ssword!`)
+- Keycloak Admin Console http://localhost:8085 (username: `kcadmin`, password: `P4ssword!`)
 - MinIO Admin Console http://localhost:9001 (username: `minioadmin`, password: `P4ssword!`)
 
 Keycloak is configured to use the `bibs` realm. There are four pre-created users:
