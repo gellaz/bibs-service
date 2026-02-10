@@ -6,7 +6,7 @@
 ![Spring Boot Badge](https://img.shields.io/badge/Spring%20Boot-4-555?logo=springboot&logoColor=fff&labelColor=6DB33F&style=plastic)
 ![Apache Maven Badge](https://img.shields.io/badge/Maven-C71A36?logo=apachemaven&logoColor=fff&style=plastic)
 ![Hibernate Badge](https://img.shields.io/badge/Hibernate-59666C?logo=hibernate&logoColor=fff&style=plastic)
-![Liquibase Badge](https://img.shields.io/badge/Flyway-CC0200?logo=flyway&logoColor=fff&style=plastic)
+![Flyway Badge](https://img.shields.io/badge/Flyway-CC0200?logo=flyway&logoColor=fff&style=plastic)
 ![JUnit5 Badge](https://img.shields.io/badge/JUnit5-25A162?logo=junit5&logoColor=fff&style=plastic)
 ![OpenAPI Initiative Badge](https://img.shields.io/badge/OpenAPI-3.1-555?logo=openapiinitiative&logoColor=fff&labelColor=6BA539&style=plastic)
 ![Swagger Badge](https://img.shields.io/badge/Swagger-85EA2D?logo=swagger&logoColor=000&style=plastic)
@@ -23,38 +23,45 @@
 
 ## Overview
 
-This is the backend service for the BIBS e-commerce platform.
+Backend service for the BIBS local commerce e-commerce platform.
+Monolithic Spring Boot 4 application with package-by-feature architecture,
+PostgreSQL 18, Keycloak 26 (OIDC), MinIO (S3), and Flyway migrations.
 
-## Getting started
+---
 
-Before starting the application, make sure you have:
+## Quick Start
 
-- Java 21 installed. You can use [SDKMAN!](https://sdkman.io/) to install it.
-- [Docker](https://www.docker.com/get-started/) installed.
+**Prerequisites:** Java 21 ([SDKMAN!](https://sdkman.io/)), [Docker](https://www.docker.com/get-started/).
 
-To get started:
+```shell
+git clone https://github.com/gellaz/bibs-service.git
+cd bibs-service
+mvnw spring-boot:run -Dspring.profiles.active=local
+```
 
-1. Clone the repository
-   ```shell
-   git clone https://github.com/gellaz/bibs-service.git
-   ```
-2. During development it is recommended to use the profile `local`. In IntelliJ `-Dspring.profiles.active=local` can be
-   added in the VM options of the Run Configuration after enabling this property in "Modify options". Create your own
-   `application-local.yml` file to override settings for development.
-3. Run the application with `local` profile using IntelliJ or Maven
-   ```shell
-   mvnw spring-boot:run -Dspring.profiles.active=local
-   ```
+> In IntelliJ add `-Dspring.profiles.active=local` to VM options.
+> Create `application-local.yml` to override settings for development.
 
-When the application is running you can access the following endpoints:
+---
 
-- Service http://localhost:8080
-- OpenAPI documentation http://localhost:8080/api-docs
-- Swagger UI http://localhost:8080/swagger-ui
-- Keycloak Admin Console http://localhost:8085 (username: `kcadmin`, password: `P4ssword!`)
-- MinIO Admin Console http://localhost:9001 (username: `minioadmin`, password: `P4ssword!`)
+## Local Dev
 
-Keycloak is configured to use the `bibs` realm. There are four pre-created users:
+Infrastructure is managed via `compose.yml`:
+
+```shell
+docker compose up -d
+```
+
+| Service      | URL / Port                       | Credentials                         |
+|--------------|----------------------------------|-------------------------------------|
+| Application  | http://localhost:8080            | —                                   |
+| Swagger UI   | http://localhost:8080/swagger-ui | OAuth2 via Keycloak                 |
+| OpenAPI JSON | http://localhost:8080/api-docs   | —                                   |
+| Keycloak     | http://localhost:8085            | `kcadmin` / `P4ssword!`             |
+| MinIO        | http://localhost:9001            | `minioadmin` / `P4ssword!`          |
+| PostgreSQL   | localhost:5432                   | `pgadmin` / `P4ssword!` / `bibs-db` |
+
+### Pre-configured Users (Keycloak `bibs` realm)
 
 | User          | Email                 | Password  | IAM Role | App Role      |
 |---------------|-----------------------|-----------|----------|---------------|
@@ -64,50 +71,92 @@ Keycloak is configured to use the `bibs` realm. There are four pre-created users
 | Store Manager | store.manager@bibs.it | P4ssword! | USER     | STORE_MANAGER |
 | Store Clerk   | store.clerk@bibs.it   | P4ssword! | USER     | STORE_CLERK   |
 
-## Build
+---
 
-The application can be built using the following command:
+## OpenAPI
+
+OpenAPI documentation is **mandatory** for every endpoint (see [ADR-0012](docs/decisions/0012-openapi-as-contract.md)).
+
+- Swagger UI: http://localhost:8080/swagger-ui (OAuth2 Keycloak integration built-in)
+- OpenAPI spec: http://localhost:8080/api-docs
+
+Every endpoint must have: summary, description, response codes, error responses, and security requirements.
+Error responses follow the standard format from `error-handling-spring-boot-starter` (
+see [ADR-0013](docs/decisions/0013-error-handling-standard.md)).
+
+---
+
+## Build
 
 ```shell
 mvnw clean package
 ```
 
-Start your application with the following command - here with the profile `production`:
+Run in production:
 
 ```shell
 java -Dspring.profiles.active=production -jar ./target/bibs-service-0.0.1-SNAPSHOT.jar
 ```
 
-If required, a Docker image can be created with the Spring Boot plugin. Add `SPRING_PROFILES_ACTIVE=production` as
-environment variable when running the container.
+Docker image:
 
 ```shell
 mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=it.bibs/bibs-service
 ```
 
+---
+
+## Documentation Map
+
+### Context (Project Knowledge)
+
+| Document                                                | Description                                    |
+|---------------------------------------------------------|------------------------------------------------|
+| [project-overview.md](docs/context/project-overview.md) | Architecture, stack, design goals              |
+| [requirements.md](docs/context/requirements.md)         | Functional requirements by actor               |
+| [domain-map.md](docs/context/domain-map.md)             | Aggregates and domain model                    |
+| [flows.md](docs/context/flows.md)                       | Business flows (registration, orders, loyalty) |
+| [authz-model.md](docs/context/authz-model.md)           | Authorization roles and rules                  |
+| [vat-verification.md](docs/context/vat-verification.md) | Async VAT verification flow                    |
+| [search-and-geo.md](docs/context/search-and-geo.md)     | Full-text search and PostGIS distance          |
+| [loyalty.md](docs/context/loyalty.md)                   | Ledger-based loyalty system                    |
+| [coding-rules.md](docs/context/coding-rules.md)         | Mandatory coding standards                     |
+| [architecture.md](docs/context/architecture.md)         | Layering rules and constraints                 |
+
+### Architecture Decision Records (ADRs)
+
+| ADR                                                             | Title                                         |
+|-----------------------------------------------------------------|-----------------------------------------------|
+| [0001](docs/decisions/0001-monolith-package-by-feature.md)      | Monolith with package-by-feature              |
+| [0002](docs/decisions/0002-flyway-strategy.md)                  | Flyway as migration strategy                  |
+| [0003](docs/decisions/0003-auth-keycloak.md)                    | Keycloak as identity provider                 |
+| [0004](docs/decisions/0004-storage-minio.md)                    | MinIO for object storage                      |
+| [0005](docs/decisions/0005-order-types-and-fulfillment.md)      | Explicit order types and fulfillment          |
+| [0006](docs/decisions/0006-vat-async-admin-review.md)           | VAT verification as async admin review        |
+| [0007](docs/decisions/0007-loyalty-ledger-model.md)             | Loyalty implemented as ledger model           |
+| [0008](docs/decisions/0008-search-geo-with-postgis.md)          | Geo search via PostGIS                        |
+| [0009](docs/decisions/0009-stock-consistency-rules.md)          | Stock consistency and transactional integrity |
+| [0010](docs/decisions/0010-internal-domain-events.md)           | Internal domain events                        |
+| [0011](docs/decisions/0011-reservation-expiration-scheduler.md) | Reservation expiration via scheduler + event  |
+| [0012](docs/decisions/0012-openapi-as-contract.md)              | OpenAPI as first-class contract               |
+| [0013](docs/decisions/0013-error-handling-standard.md)          | Standard error handling                       |
+| [0014](docs/decisions/0014-code-formatting-spotless.md)         | Code formatting via Spotless                  |
+| [0015](docs/decisions/0015-mapping-via-mapstruct.md)            | DTO mapping via MapStruct                     |
+
+---
+
 ## Auth
 
-In the context of OAuth, _resource server_ means that our application provides a resource - our REST API. The user has
-already been identified by the authorization server, so that the client possesses a token that is sent along to the
-resource server. Our application therefore no longer has to issue a new token, but only validates the token provided. In
-simplified form, the process looks as follows:
-
-![Accessing the resource server with a token](auth.png "Auth Flow")
-
-This approach makes a lot of sense with an SPA (Single Page Application) like React: the client authenticates itself
-directly with Keycloak via OAuth, and our Spring Boot application is then only provided with the final token in the
-`Authorization: Bearer ...` header. The validity of the token is then checked directly with Keycloak.
+The application is an OAuth2 Resource Server. The client authenticates directly with Keycloak,
+and the backend validates the JWT token from the `Authorization: Bearer ...` header.
 
 ### Keycloak Realm Export
-
-To export the current `bibs` realm configuration from the running Keycloak container, run:
 
 ```shell
 ./scripts/export-keycloak-realm-from-docker.sh
 ```
 
-The script connects to the `bibs-keycloak` container, exports the realm, and saves it
-as `keycloak-realm.json` in the project root (overwriting the existing file).
+---
 
 ## References
 

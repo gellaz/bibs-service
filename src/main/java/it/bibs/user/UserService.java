@@ -11,14 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-import it.bibs.business_profile.BusinessProfile;
-import it.bibs.business_profile.BusinessProfileRepository;
+import it.bibs.customer_profile.CustomerProfile;
+import it.bibs.customer_profile.CustomerProfileRepository;
 import it.bibs.events.BeforeDeleteUser;
-import it.bibs.loyalty_account.LoyaltyAccount;
-import it.bibs.loyalty_account.LoyaltyAccountRepository;
 import it.bibs.security.AclService;
+import it.bibs.seller_profile.SellerProfile;
+import it.bibs.seller_profile.SellerProfileRepository;
+import it.bibs.seller_profile.VatVerificationStatus;
 import it.bibs.util.CustomCollectors;
 import it.bibs.util.NotFoundException;
+import it.bibs.util.ReferencedException;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -26,11 +28,13 @@ import it.bibs.util.NotFoundException;
 public class UserService {
 
   private final UserRepository userRepository;
-  private final BusinessProfileRepository businessProfileRepository;
-  private final LoyaltyAccountRepository loyaltyAccountRepository;
+  private final SellerProfileRepository sellerProfileRepository;
+  private final CustomerProfileRepository customerProfileRepository;
   private final ApplicationEventPublisher publisher;
   private final UserMapper userMapper;
   private final AclService aclService;
+
+  // ── Self-service ──────────────────────────────────────────────────────────
 
   public UserDTO getMe() {
     final String identitySubject = aclService.getCurrentUserSubject();
@@ -41,6 +45,53 @@ public class UserService {
         .orElseThrow(NotFoundException::new);
   }
 
+  /**
+   * Onboard the current user as a seller. Creates a SellerProfile with PENDING VAT status. Fails if
+   * the user already has a seller profile or if the VAT number is already in use.
+   */
+  public void onboardAsSeller(final String vatNumber) {
+    final User user = getCurrentUser();
+
+    if (sellerProfileRepository.existsByUserId(user.getId())) {
+      final ReferencedException ex = new ReferencedException();
+      ex.setKey("user.sellerProfile.alreadyExists");
+      throw ex;
+    }
+
+    if (sellerProfileRepository.existsByVatNumberIgnoreCase(vatNumber)) {
+      final ReferencedException ex = new ReferencedException();
+      ex.setKey("sellerProfile.vatNumber.alreadyInUse");
+      throw ex;
+    }
+
+    final SellerProfile profile = new SellerProfile();
+    profile.setUser(user);
+    profile.setVatNumber(vatNumber);
+    profile.setVatVerificationStatus(VatVerificationStatus.PENDING);
+    sellerProfileRepository.save(profile);
+  }
+
+  /**
+   * Onboard the current user as a customer. Creates a CustomerProfile with zero balance. Fails if
+   * the user already has a customer profile.
+   */
+  public void onboardAsCustomer() {
+    final User user = getCurrentUser();
+
+    if (customerProfileRepository.findFirstByUserId(user.getId()) != null) {
+      final ReferencedException ex = new ReferencedException();
+      ex.setKey("user.customerProfile.alreadyExists");
+      throw ex;
+    }
+
+    final CustomerProfile profile = new CustomerProfile();
+    profile.setUser(user);
+    profile.setPointsBalance(0);
+    customerProfileRepository.save(profile);
+  }
+
+  // ── CRUD ──────────────────────────────────────────────────────────────────
+
   public List<UserDTO> findAll() {
     final List<User> users = userRepository.findAll(Sort.by("id"));
     return users.stream().map(this::mapToDTO).toList();
@@ -48,20 +99,6 @@ public class UserService {
 
   public UserDTO get(final UUID id) {
     return userRepository.findById(id).map(this::mapToDTO).orElseThrow(NotFoundException::new);
-  }
-
-  private UserDTO mapToDTO(final User user) {
-    final UserDTO userDTO = userMapper.toDTO(user);
-    final BusinessProfile businessProfile =
-        businessProfileRepository.findFirstByUserId(user.getId());
-    if (businessProfile != null) {
-      userDTO.setBusinessProfile(userMapper.toBusinessProfileDTO(businessProfile));
-    }
-    final LoyaltyAccount loyaltyAccount = loyaltyAccountRepository.findFirstByUserId(user.getId());
-    if (loyaltyAccount != null) {
-      userDTO.setLoyaltyAccount(userMapper.toLoyaltyAccountDTO(loyaltyAccount));
-    }
-    return userDTO;
   }
 
   public UUID create(final UserDTO userDTO) {
@@ -82,6 +119,8 @@ public class UserService {
     userRepository.delete(user);
   }
 
+  // ── Query helpers ─────────────────────────────────────────────────────────
+
   public boolean identitySubjectExists(final String identitySubject) {
     return userRepository.existsByIdentitySubject(identitySubject);
   }
@@ -93,5 +132,28 @@ public class UserService {
   public Map<UUID, UUID> getUserValues() {
     return userRepository.findAll(Sort.by("id")).stream()
         .collect(CustomCollectors.toSortedMap(User::getId, User::getId));
+  }
+
+  // ── Private ───────────────────────────────────────────────────────────────
+
+  private User getCurrentUser() {
+    final String identitySubject = aclService.getCurrentUserSubject();
+    return userRepository
+        .findByIdentitySubject(identitySubject)
+        .orElseThrow(NotFoundException::new);
+  }
+
+  private UserDTO mapToDTO(final User user) {
+    final UserDTO userDTO = userMapper.toDTO(user);
+    final SellerProfile sellerProfile = sellerProfileRepository.findFirstByUserId(user.getId());
+    if (sellerProfile != null) {
+      userDTO.setSellerProfile(userMapper.toSellerProfileDTO(sellerProfile));
+    }
+    final CustomerProfile customerProfile =
+        customerProfileRepository.findFirstByUserId(user.getId());
+    if (customerProfile != null) {
+      userDTO.setCustomerProfile(userMapper.toCustomerProfileDTO(customerProfile));
+    }
+    return userDTO;
   }
 }

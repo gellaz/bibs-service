@@ -1,11 +1,11 @@
-package it.bibs.loyalty_account;
+package it.bibs.customer_profile;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class LoyaltyAccountDTO {
+public class CustomerProfileDTO {
 
   private Integer pointsBalance;
 }

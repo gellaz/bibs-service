@@ -5,16 +5,15 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import it.bibs.customer_profile.CustomerProfile;
 import it.bibs.entity.AuditableEntity;
-import it.bibs.loyalty_account.LoyaltyAccount;
-import it.bibs.store.Store;
+import it.bibs.store_member.StoreMember;
 import it.bibs.user_address.UserAddress;
 
 @Entity
@@ -38,9 +37,9 @@ public class User extends AuditableEntity {
   @OneToMany(mappedBy = "user")
   private Set<UserAddress> userAddresses = new HashSet<>();
 
-  @ManyToMany(mappedBy = "user")
-  private Set<Store> stores = new HashSet<>();
+  @OneToMany(mappedBy = "user")
+  private Set<StoreMember> storeMemberships = new HashSet<>();
 
   @OneToOne(mappedBy = "user")
-  private LoyaltyAccount loyaltyAccount;
+  private CustomerProfile customerProfile;
 }

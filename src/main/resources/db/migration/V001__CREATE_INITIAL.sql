@@ -38,7 +38,7 @@ CREATE TABLE user_addresses
     CONSTRAINT pk_user_addresses PRIMARY KEY (id)
 );
 
-CREATE TABLE business_profiles
+CREATE TABLE seller_profiles
 (
     id                      UUID                        NOT NULL DEFAULT gen_random_uuid(),
     vat_number              VARCHAR(11)                 NOT NULL,
@@ -47,9 +47,9 @@ CREATE TABLE business_profiles
     user_id                 UUID                        NOT NULL,
     created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    CONSTRAINT pk_business_profiles PRIMARY KEY (id),
-    CONSTRAINT unique_business_profiles_vat_number UNIQUE (vat_number),
-    CONSTRAINT check_business_profiles_vat_status CHECK (vat_verification_status IN ('PENDING', 'VERIFIED', 'REJECTED'))
+    CONSTRAINT pk_seller_profiles PRIMARY KEY (id),
+    CONSTRAINT unique_seller_profiles_vat_number UNIQUE (vat_number),
+    CONSTRAINT check_seller_profiles_vat_status CHECK (vat_verification_status IN ('PENDING', 'VERIFIED', 'REJECTED'))
 );
 
 CREATE TABLE stores
@@ -72,9 +72,15 @@ CREATE TABLE stores
 
 CREATE TABLE store_members
 (
-    store_id UUID NOT NULL,
-    user_id  UUID NOT NULL,
-    CONSTRAINT pk_store_members PRIMARY KEY (store_id, user_id)
+    id         UUID                        NOT NULL DEFAULT gen_random_uuid(),
+    store_id   UUID                        NOT NULL,
+    user_id    UUID                        NOT NULL,
+    role       VARCHAR(100)                NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT pk_store_members PRIMARY KEY (id),
+    CONSTRAINT unique_store_members_store_user UNIQUE (store_id, user_id),
+    CONSTRAINT check_store_members_role CHECK (role IN ('OWNER', 'MANAGER', 'CLERK'))
 );
 
 CREATE TABLE products
@@ -197,15 +203,15 @@ CREATE TABLE shipments
 
 );
 
-CREATE TABLE loyalty_accounts
+CREATE TABLE customer_profiles
 (
     id             UUID                        NOT NULL DEFAULT gen_random_uuid(),
-    points_balance INTEGER                     NOT NULL,
+    points_balance INTEGER                     NOT NULL DEFAULT 0,
     user_id        UUID                        NOT NULL,
     created_at     TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at     TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-    CONSTRAINT loyalty_accounts_pkey PRIMARY KEY (id),
-    CONSTRAINT unique_loyalty_accounts_user_id UNIQUE (user_id)
+    CONSTRAINT pk_customer_profiles PRIMARY KEY (id),
+    CONSTRAINT unique_customer_profiles_user_id UNIQUE (user_id)
 );
 
 CREATE TABLE loyalty_point_transactions
@@ -230,11 +236,11 @@ CREATE TABLE loyalty_point_transactions
 ALTER TABLE user_addresses
     ADD CONSTRAINT fk_user_addresses_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-ALTER TABLE business_profiles
-    ADD CONSTRAINT fk_business_profiles_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE seller_profiles
+    ADD CONSTRAINT fk_seller_profiles_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-ALTER TABLE business_profiles
-    ADD CONSTRAINT unique_business_profiles_user_id UNIQUE (user_id);
+ALTER TABLE seller_profiles
+    ADD CONSTRAINT unique_seller_profiles_user_id UNIQUE (user_id);
 
 ALTER TABLE store_members
     ADD CONSTRAINT fk_store_members_store_id FOREIGN KEY (store_id) REFERENCES stores (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
@@ -269,8 +275,8 @@ ALTER TABLE order_fulfillments
 ALTER TABLE shipments
     ADD CONSTRAINT fk_shipments_order_id FOREIGN KEY (order_id) REFERENCES orders (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-ALTER TABLE loyalty_accounts
-    ADD CONSTRAINT fk_loyalty_accounts_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE customer_profiles
+    ADD CONSTRAINT fk_customer_profiles_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 ALTER TABLE loyalty_point_transactions
     ADD CONSTRAINT fk_loyalty_point_transactions_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;

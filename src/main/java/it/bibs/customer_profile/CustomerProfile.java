@@ -1,4 +1,4 @@
-package it.bibs.loyalty_account;
+package it.bibs.customer_profile;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,10 +13,10 @@ import it.bibs.entity.AuditableEntity;
 import it.bibs.user.User;
 
 @Entity
-@Table(name = "loyalty_accounts")
+@Table(name = "customer_profiles")
 @Getter
 @Setter
-public class LoyaltyAccount extends AuditableEntity {
+public class CustomerProfile extends AuditableEntity {
 
   @Column(nullable = false)
   private Integer pointsBalance;

@@ -32,7 +32,13 @@ public class SwaggerConfig {
   public OpenAPI openApiSpec() {
     return new OpenAPI()
         .info(
-            new Info().title("BIBS API").version("0.0.1").description("API documentation for BIBS"))
+            new Info()
+                .title("BIBS API")
+                .version("0.0.1")
+                .description(
+                    "REST API for the BIBS local commerce e-commerce platform. "
+                        + "Authentication is via OAuth2 (Keycloak). "
+                        + "All error responses follow the standard format produced by error-handling-spring-boot-starter."))
         .addSecurityItem(new SecurityRequirement().addList("oauth2"))
         .components(
             new Components()
@@ -56,21 +62,38 @@ public class SwaggerConfig {
                 .addSchemas(
                     "ApiErrorResponse",
                     new ObjectSchema()
-                        .addProperty("status", new IntegerSchema())
-                        .addProperty("code", new StringSchema())
-                        .addProperty("message", new StringSchema())
+                        .description(
+                            "Standard error response produced by error-handling-spring-boot-starter")
+                        .addProperty(
+                            "status",
+                            new IntegerSchema().description("HTTP status code").example(404))
+                        .addProperty(
+                            "code",
+                            new StringSchema()
+                                .description("Machine-readable error code")
+                                .example("NOT_FOUND"))
+                        .addProperty(
+                            "message",
+                            new StringSchema()
+                                .description("Human-readable error message")
+                                .example("Resource not found"))
                         .addProperty(
                             "fieldErrors",
                             new ArraySchema()
+                                .description("Validation errors (present only for 400 responses)")
                                 .items(new Schema<ArraySchema>().$ref("ApiFieldError"))))
                 .addSchemas(
                     "ApiFieldError",
                     new ObjectSchema()
-                        .addProperty("code", new StringSchema())
-                        .addProperty("message", new StringSchema())
-                        .addProperty("property", new StringSchema())
-                        .addProperty("rejectedValue", new ObjectSchema())
-                        .addProperty("path", new StringSchema())));
+                        .description("Validation error detail for a single field")
+                        .addProperty("code", new StringSchema().description("Validation rule code"))
+                        .addProperty(
+                            "message", new StringSchema().description("Validation error message"))
+                        .addProperty("property", new StringSchema().description("Field name"))
+                        .addProperty(
+                            "rejectedValue", new ObjectSchema().description("The rejected value"))
+                        .addProperty(
+                            "path", new StringSchema().description("JSON path to the field"))));
   }
 
   @Bean

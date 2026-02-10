@@ -5,15 +5,13 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 import it.bibs.entity.AuditableEntity;
-import it.bibs.user.User;
+import it.bibs.store_member.StoreMember;
 
 @Entity
 @Table(name = "stores")
@@ -48,10 +46,6 @@ public class Store extends AuditableEntity {
 
   @Column private Double longitude;
 
-  @ManyToMany
-  @JoinTable(
-      name = "store_members",
-      joinColumns = @JoinColumn(name = "storeId"),
-      inverseJoinColumns = @JoinColumn(name = "userId"))
-  private Set<User> user = new HashSet<>();
+  @OneToMany(mappedBy = "store")
+  private Set<StoreMember> members = new HashSet<>();
 }

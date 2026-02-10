@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import it.bibs.business_profile.BusinessProfileDTO;
-import it.bibs.loyalty_account.LoyaltyAccountDTO;
+import it.bibs.customer_profile.CustomerProfileDTO;
+import it.bibs.seller_profile.SellerProfileDTO;
 
 @Getter
 @Setter
@@ -23,7 +23,7 @@ public class UserDTO {
 
   private String lastName;
 
-  private BusinessProfileDTO businessProfile;
+  private SellerProfileDTO sellerProfile;
 
-  private LoyaltyAccountDTO loyaltyAccount;
+  private CustomerProfileDTO customerProfile;
 }

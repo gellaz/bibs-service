@@ -1,6 +1,5 @@
 package it.bibs.store;
 
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
@@ -18,11 +17,11 @@ public class StoreDTO {
 
   private String description;
 
-  @NotNull private String addressLine1;
+  private String addressLine1;
 
-  private String addressLine2;
+  @NotNull private String addressLine2;
 
-  @NotNull private String city;
+  private String city;
 
   @NotNull private String zipCode;
 
@@ -36,6 +35,4 @@ public class StoreDTO {
   private Double latitude;
 
   private Double longitude;
-
-  private List<UUID> user;
 }
