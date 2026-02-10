@@ -98,13 +98,16 @@ This approach makes a lot of sense with an SPA (Single Page Application) like Re
 directly with Keycloak via OAuth, and our Spring Boot application is then only provided with the final token in the
 `Authorization: Bearer ...` header. The validity of the token is then checked directly with Keycloak.
 
-### Kecloak Realm Export
+### Keycloak Realm Export
+
+To export the current `bibs` realm configuration from the running Keycloak container, run:
 
 ```shell
-docker exec -u root -it bibs-keycloak sh -c "rm -rf /opt/keycloak/bin/keycloak-realm-export.json"
-docker exec -u root -it bibs-keycloak sh -c "./opt/keycloak/bin/kc.sh export --file=keycloak-realm-export.json --realm=bibs --optimized"
-docker cp bibs-keycloak:keycloak-realm-export.json ./keycloak-realm-export.json
+./scripts/export-keycloak-realm-from-docker.sh
 ```
+
+The script connects to the `bibs-keycloak` container, exports the realm, and saves it
+as `keycloak-realm.json` in the project root (overwriting the existing file).
 
 ## References
 
