@@ -38,6 +38,7 @@ public class SwaggerConfig {
                 .description(
                     "REST API for the BIBS local commerce e-commerce platform. "
                         + "Authentication is via OAuth2 (Keycloak). "
+                        + "Keycloak clients: bibs-customer (customer app), bibs-seller (seller portal), bibs-swagger (Swagger UI). "
                         + "All error responses follow the standard format produced by error-handling-spring-boot-starter."))
         .addSecurityItem(new SecurityRequirement().addList("oauth2"))
         .components(

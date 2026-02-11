@@ -27,7 +27,8 @@ All code generation and refactoring MUST comply with these constraints.
 ## OpenAPI (Mandatory)
 
 - **Every endpoint must be documented** with OpenAPI annotations.
-- Required per endpoint: `@Operation(summary, description)`, `@ApiResponse` for all status codes, `@SecurityRequirement` where auth is needed.
+- Required per endpoint: `@Operation(summary, description)`, `@ApiResponse` for all status codes, `@SecurityRequirement`
+  where auth is needed.
 - Request and response schemas must be explicitly typed (no generic `Object`).
 - All enums must be documented.
 - Swagger UI must be enabled in non-production environments.
@@ -44,10 +45,17 @@ All code generation and refactoring MUST comply with these constraints.
 
 - Authentication via **Keycloak 26** (OIDC / JWT).
 - Realm roles: `ADMIN`, `USER`.
+- Keycloak clients:
+    - `bibs-customer` — customer-facing web app (port 3000).
+    - `bibs-seller` — seller management portal (port 3001).
+    - `bibs-swagger` — Swagger UI (development only).
+- `UserSynchronizationService` syncs users on first login:
+    - `bibs-customer` → creates `User` + `CustomerProfile` automatically.
+    - `bibs-seller` / `bibs-swagger` → creates `User` only (seller onboarding requires VAT).
 - User capabilities are derived from profiles (capability-based model):
-  - `SellerProfile` → user is a seller (store owner)
-  - `CustomerProfile` → user is a customer
-  - A user can have both profiles.
+    - `SellerProfile` → user is a seller (store owner)
+    - `CustomerProfile` → user is a customer
+    - A user can have both profiles.
 - **VAT VERIFIED gate**: only sellers with `vatVerificationStatus == VERIFIED` can create stores or manage products.
 - **Only ADMIN can verify or reject VAT.** This is enforced in the service layer.
 
@@ -68,7 +76,8 @@ All code generation and refactoring MUST comply with these constraints.
 ## Reservation Expiration
 
 - Expired reservations (RESERVE_PICKUP) are handled by a **periodic scheduler**.
-- The scheduler finds expired reservations, transitions them to EXPIRED, releases stock, and publishes a `ReservationExpired` domain event.
+- The scheduler finds expired reservations, transitions them to EXPIRED, releases stock, and publishes a
+  `ReservationExpired` domain event.
 - Side effects (notifications, analytics) are handled by event listeners, not the scheduler itself.
 - The job must be **idempotent** and use database-level locking for concurrency safety.
 
