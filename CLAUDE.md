@@ -10,6 +10,10 @@ All code generation and refactoring MUST comply with these constraints.
 - This is a **Spring Boot 4 monolith** with **package-by-feature** structure.
 - Layering: Controller → Service → Repository. No shortcuts.
 - Do NOT introduce microservices, new frameworks, or replace existing libraries.
+- This repository is the **backend only**. Two frontend apps (Next.js + Vite/TanStack Router) live in a separate
+  monorepo and consume the REST API.
+- The backend is the **domain server**: all business logic, transactions, events, and persistence live here. Frontends
+  are thin clients.
 
 ## Flyway
 

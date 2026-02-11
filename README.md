@@ -61,15 +61,24 @@ docker compose up -d
 | MinIO        | http://localhost:9001            | `minioadmin` / `P4ssword!`          |
 | PostgreSQL   | localhost:5432                   | `pgadmin` / `P4ssword!` / `bibs-db` |
 
+### Frontend Applications
+
+| App           | URL                   | Keycloak Client | Description                                            |
+|---------------|-----------------------|-----------------|--------------------------------------------------------|
+| Customer App  | http://localhost:3000 | `bibs-customer` | Customer-facing app (includes admin panel at `/admin`) |
+| Seller Portal | http://localhost:3001 | `bibs-seller`   | Seller management portal                               |
+
+See [ADR-0017](docs/decisions/0017-two-frontend-apps.md) for the rationale.
+
 ### Pre-configured Users (Keycloak `bibs` realm)
 
-| User          | Email                 | Password  | IAM Role | App Role      |
-|---------------|-----------------------|-----------|----------|---------------|
-| Admin         | admin@bibs.it         | P4ssword! | ADMIN    | ADMIN         |
-| User          | user@bibs.it          | P4ssword! | USER     | CUSTOMER      |
-| Store Owner   | store.owner@bibs.it   | P4ssword! | USER     | STORE_OWNER   |
-| Store Manager | store.manager@bibs.it | P4ssword! | USER     | STORE_MANAGER |
-| Store Clerk   | store.clerk@bibs.it   | P4ssword! | USER     | STORE_CLERK   |
+| User          | Email                 | Password  | Realm Role | Profiles / Store Role    |
+|---------------|-----------------------|-----------|------------|--------------------------|
+| Admin         | admin@bibs.it         | P4ssword! | ADMIN      | —                        |
+| Customer      | customer@bibs.it      | P4ssword! | USER       | CustomerProfile          |
+| Seller        | seller@bibs.it        | P4ssword! | USER       | SellerProfile (VERIFIED) |
+| Store Manager | store.manager@bibs.it | P4ssword! | USER       | StoreMember (MANAGER)    |
+| Store Clerk   | store.clerk@bibs.it   | P4ssword! | USER       | StoreMember (CLERK)      |
 
 ---
 
@@ -142,6 +151,8 @@ mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=it.bibs/bibs-se
 | [0013](docs/decisions/0013-error-handling-standard.md)          | Standard error handling                       |
 | [0014](docs/decisions/0014-code-formatting-spotless.md)         | Code formatting via Spotless                  |
 | [0015](docs/decisions/0015-mapping-via-mapstruct.md)            | DTO mapping via MapStruct                     |
+| [0016](docs/decisions/0016-admin-api-prefix.md)                 | Separate admin API prefix                     |
+| [0017](docs/decisions/0017-two-frontend-apps.md)                | Two separate frontend applications            |
 
 ---
 

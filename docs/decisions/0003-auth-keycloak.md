@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted (updated)
 
 ## Context
 
@@ -13,44 +13,61 @@ The platform requires:
 - JWT tokens
 - Admin-only VAT verification
 - Multi-role users
+- Two separate frontend applications (customer app + seller portal)
 
 ## Decision
 
-Use Keycloak 26 as IAM.
+Use Keycloak 26 as IAM with a single realm (`bibs`).
 
-Realm roles:
+### Realm Roles
 
-- ADMIN
-- USER
+- `ADMIN` — back-office operations (VAT verification, user management)
+- `USER` — all regular users (customers and sellers alike)
 
-Business roles stored in database:
+No client-level roles. All business capabilities are derived from database profiles.
 
-- CUSTOMER
-- STORE_OWNER
-- STORE_EMPLOYEE
+### Keycloak Clients
 
-Backend validates:
+| Client          | Purpose                  | Redirect URIs    |
+|-----------------|--------------------------|------------------|
+| `bibs-customer` | Customer-facing web app  | `localhost:3000` |
+| `bibs-seller`   | Seller management portal | `localhost:3001` |
+| `bibs-swagger`  | Swagger UI (dev only)    | `localhost:8080` |
 
-- JWT via OIDC
-- Business permissions via database membership
+All clients are **public** (PKCE), standard flow, with the `realm roles` protocol mapper.
+
+### Capability-Based Authorization
+
+Business permissions are stored in the database, not in Keycloak:
+
+| Capability | Database entity                         | Meaning                                         |
+|------------|-----------------------------------------|-------------------------------------------------|
+| Seller     | `SellerProfile`                         | User can manage stores (after VAT verification) |
+| Customer   | `CustomerProfile`                       | User can search and purchase                    |
+| Store role | `StoreMember` (OWNER / MANAGER / CLERK) | User has a role within a specific store         |
+
+A user can have both `SellerProfile` and `CustomerProfile` (cross-onboarding).
+
+### Automatic Profile Creation
+
+`UserSynchronizationService` reads the `azp` (authorized party) JWT claim on first login:
+
+- `bibs-customer` → creates `User` + `CustomerProfile`
+- `bibs-seller` → creates `User` only (seller onboarding requires VAT submission)
+- `bibs-swagger` → creates `User` only
 
 ## Rationale
 
-- Mature OIDC implementation
-- Role mapping support
-- Secure token handling
-- Easy admin management
-
-## Authorization Strategy
-
-- ADMIN → can verify VAT
-- STORE_OWNER → manage stores
-- STORE_EMPLOYEE → manage products of assigned stores
-- CUSTOMER → search and purchase
+- Mature OIDC implementation with PKCE support
+- Realm roles for coarse-grained access (admin vs user)
+- Database-driven capabilities for fine-grained business logic — no sync issues with Keycloak
+- `azp` claim enables automatic profile creation without client-level roles
 
 ## Consequences
 
-- Keycloak realm configuration is source of truth for authentication
+- Keycloak realm configuration is source of truth for **authentication**
 - Authorization is split:
-  - Realm-level (ADMIN)
-  - Domain-level (store membership)
+    - Realm-level: `ADMIN` role (JWT)
+    - Domain-level: profiles and store membership (database)
+- No client roles to maintain or synchronize
+- Adding new capabilities = new database entity, not Keycloak configuration
