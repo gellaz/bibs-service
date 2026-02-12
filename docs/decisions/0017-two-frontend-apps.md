@@ -25,9 +25,14 @@ were evaluated as backend replacements but dismissed: the domain complexity (tra
 loyalty ledger, domain events, scheduled jobs, PostGIS, pessimistic locking) requires the mature
 transaction management and enterprise patterns provided by Spring Boot + JPA.
 
+A mixed frontend stack (Next.js for customer + Vite/TanStack Router for seller) was also considered
+but dismissed in favor of a unified Next.js stack: same routing paradigm, same auth library,
+same deploy pipeline, lower cognitive overhead. The seller portal does not use SSR (pages are
+client components) so the overhead is negligible.
+
 ## Decision
 
-**Option 2: Two frontend applications, backed by the Spring Boot monolith.**
+**Option 2: Two Next.js applications, backed by the Spring Boot monolith.**
 
 ### System Architecture
 
@@ -37,12 +42,12 @@ transaction management and enterprise patterns provided by Spring Boot + JPA.
                     └────────┬────────┘
                              │ JWT
            ┌─────────────────┼─────────────────┐
-           │                 │                  │
-    ┌──────┴──────┐   ┌─────┴──────┐   ┌──────┴──────┐
+           │                 │                 │
+    ┌──────┴──────┐   ┌──────┴──────┐   ┌──────┴──────┐
     │ Customer App│   │Seller Portal│   │ Swagger UI  │
-    │  (Next.js)  │   │(Vite + TSR)│   │ (dev only)  │
-    │  port 3000  │   │  port 3001 │   │  port 8080  │
-    └──────┬──────┘   └─────┬──────┘   └──────┬──────┘
+    │  (Next.js)  │   │  (Next.js)  │   │ (dev only)  │
+    │  port 3000  │   │  port 3001  │   │  port 8080  │
+    └──────┬──────┘   └─────┬───────┘   └──────┬──────┘
            │                │                  │
            └────────────────┼──────────────────┘
                             │ REST + Bearer JWT
@@ -59,10 +64,10 @@ transaction management and enterprise patterns provided by Spring Boot + JPA.
 
 ### Frontend Stack
 
-| App               | Framework | Routing         | SSR      | Why                                           |
-|-------------------|-----------|-----------------|----------|-----------------------------------------------|
-| **Customer App**  | Next.js   | App Router      | Yes      | SEO required for product/store pages          |
-| **Seller Portal** | Vite      | TanStack Router | No (CSR) | Behind login, no SEO; best DX and type-safety |
+| App               | Framework            | SSR                    | Why                                                   |
+|-------------------|----------------------|------------------------|-------------------------------------------------------|
+| **Customer App**  | Next.js (App Router) | Yes                    | SEO required for product/store/search pages           |
+| **Seller Portal** | Next.js (App Router) | No (client components) | Behind login, no SEO; unified stack with customer app |
 
 The admin panel is a protected section (`/admin`) within the customer app, accessible only to users with the `ADMIN`
 realm role.
@@ -73,27 +78,30 @@ realm role.
 bibs-frontend/
   apps/
     customer/          ← Next.js (bibs.it)
-    seller/            ← Vite + TanStack Router (seller.bibs.it)
+    seller/            ← Next.js (seller.bibs.it)
   packages/
     ui/                ← Shared React components (shadcn/ui + Tailwind)
     api-client/        ← TypeScript types auto-generated from OpenAPI
-    auth/              ← Keycloak wrapper (next-auth for customer, react-oidc for seller)
+    auth/              ← next-auth v5 with Keycloak provider
     shared/            ← Utils, constants, Zod validation schemas
 ```
 
 ### Shared Libraries
 
-| Package      | Content                                                                      | Framework-agnostic |
-|--------------|------------------------------------------------------------------------------|--------------------|
-| `ui`         | Design system (shadcn/ui + Tailwind CSS v4)                                  | Yes                |
-| `api-client` | Types generated from `http://localhost:8080/api-docs` via openapi-typescript | Yes                |
-| `auth`       | Keycloak OIDC integration                                                    | Adapter per app    |
-| `shared`     | Zod schemas, constants, formatters                                           | Yes                |
+| Package      | Content                                                                      | Shared                 |
+|--------------|------------------------------------------------------------------------------|------------------------|
+| `ui`         | Design system (shadcn/ui + Tailwind CSS v4)                                  | Yes                    |
+| `api-client` | Types generated from `http://localhost:8080/api-docs` via openapi-typescript | Yes                    |
+| `auth`       | next-auth v5 with Keycloak OIDC provider                                     | Yes (identical config) |
+| `shared`     | Zod schemas, constants, formatters                                           | Yes                    |
 
 ### Key Technology Choices
 
-- **Tailwind CSS v4** — utility-first styling, shared between both apps
+- **Next.js (App Router)** — framework for both apps; SSR where needed (customer), CSR elsewhere (seller)
+- **next-auth v5** — Keycloak OIDC integration, shared between both apps
+- **Tailwind CSS v4** — utility-first styling, shared design tokens
 - **shadcn/ui** — copy-paste components (not a dependency), highly customizable
+- **nuqs** — type-safe URL search params for Next.js (similar DX to TanStack Router search params)
 - **TanStack Query** — data fetching and cache in both apps
 - **openapi-typescript + openapi-fetch** — type-safe API client generated from backend OpenAPI spec
 - **Turborepo** — monorepo build orchestration with caching
@@ -110,22 +118,22 @@ bibs-frontend/
 
 - **UX separation**: customers and sellers have fundamentally different needs. A single app would lead to confusing
   navigation and bloated bundles.
-- **Right tool for each app**: Next.js provides SSR/SSG for SEO-critical customer pages; TanStack Router provides
-  superior type-safety and DX for the seller portal where SEO is irrelevant.
+- **Unified stack**: both apps use Next.js — same routing paradigm, same auth library (next-auth), same middleware
+  patterns, same deploy pipeline. Developers only need to learn one framework.
+- **SSR only where needed**: the customer app uses SSR/SSG for SEO-critical pages (products, stores, search).
+  The seller portal pages are client components (`"use client"`) — no SSR overhead.
 - **Spring Boot as domain server**: the backend handles complex domain logic (transactions, events, schedulers, PostGIS)
   that JS/TS backend frameworks cannot match in maturity. Frontends are thin clients consuming a REST API.
 - **Bundle size**: each app only ships code for its audience. Customer app stays lightweight.
 - **Admin is lightweight**: the admin currently only manages VAT verification and seller profiles — not enough to
   justify a dedicated third app. If admin grows complex, it can be extracted later.
-- **Keycloak alignment**: two clients (`bibs-customer`, `bibs-seller`) already map 1:1 to the two apps. The `azp` claim
+- **Keycloak alignment**: two clients (`bibs-customer`, `bibs-seller`) map 1:1 to the two apps. The `azp` claim
   drives automatic profile creation.
 - **Independent deployability**: each app can be deployed, versioned, and scaled independently.
-- **No vendor lock-in**: the seller portal (Vite) deploys anywhere; the customer app (Next.js) can be deployed on
-  Vercel, Netlify, or self-hosted.
 
 ## Consequences
 
-- Two separate frontend codebases sharing code via Turborepo monorepo.
+- Two separate Next.js apps sharing code via Turborepo monorepo.
 - The Spring Boot backend API serves both apps — no API duplication.
 - API contract alignment is enforced via auto-generated TypeScript types from the OpenAPI spec.
 - The `bibs-swagger` Keycloak client remains for development/testing via Swagger UI.

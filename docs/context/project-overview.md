@@ -17,12 +17,12 @@
                     └────────┬────────┘
                              │ JWT
            ┌─────────────────┼─────────────────┐
-           │                 │                  │
-    ┌──────┴──────┐   ┌─────┴──────┐   ┌──────┴──────┐
+           │                 │                 │
+    ┌──────┴──────┐   ┌──────┴──────┐   ┌──────┴──────┐
     │ Customer App│   │Seller Portal│   │ Swagger UI  │
-    │  (Next.js)  │   │(Vite + TSR)│   │ (dev only)  │
-    │  port 3000  │   │  port 3001 │   │  port 8080  │
-    └──────┬──────┘   └─────┬──────┘   └──────┬──────┘
+    │  (Next.js)  │   │  (Next.js)  │   │ (dev only)  │
+    │  port 3000  │   │  port 3001  │   │  port 8080  │
+    └──────┬──────┘   └─────┬───────┘   └──────┬──────┘
            │                │                  │
            └────────────────┼──────────────────┘
                             │ REST + Bearer JWT
@@ -39,12 +39,12 @@
 
 ## Frontend Architecture
 
-Two separate frontend applications (see [ADR-0017](../decisions/0017-two-frontend-apps.md)):
+Two separate Next.js applications (see [ADR-0017](../decisions/0017-two-frontend-apps.md)):
 
-| App           | Framework                    | Audience                | Domain           | Keycloak Client |
-|---------------|------------------------------|-------------------------|------------------|-----------------|
-| Customer App  | Next.js (SSR)                | Customers + Admin panel | `bibs.it`        | `bibs-customer` |
-| Seller Portal | Vite + TanStack Router (CSR) | Sellers                 | `seller.bibs.it` | `bibs-seller`   |
+| App           | Framework     | Audience                | Domain           | Keycloak Client |
+|---------------|---------------|-------------------------|------------------|-----------------|
+| Customer App  | Next.js (SSR) | Customers + Admin panel | `bibs.it`        | `bibs-customer` |
+| Seller Portal | Next.js (CSR) | Sellers                 | `seller.bibs.it` | `bibs-seller`   |
 
 The admin panel is a protected section within the customer app (`/admin`), guarded by the `ADMIN` realm role.
 The frontend code lives in a separate Turborepo monorepo with shared packages (UI, API client, auth).
