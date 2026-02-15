@@ -99,20 +99,20 @@ public class SwaggerConfig {
 
   @Bean
   public OperationCustomizer operationCustomizer() {
-    // add error type to each operation
+    // add error type to each operation (OpenAPI 3.0 requires "4XX" and "5XX", not
+    // "4xx/5xx")
     return (operation, handlerMethod) -> {
-      operation
-          .getResponses()
-          .addApiResponse(
-              "4xx/5xx",
-              new ApiResponse()
-                  .description("Error")
-                  .content(
-                      new Content()
-                          .addMediaType(
-                              "*/*",
-                              new MediaType()
-                                  .schema(new Schema<MediaType>().$ref("ApiErrorResponse")))));
+      var errorResponse =
+          new ApiResponse()
+              .description("Error")
+              .content(
+                  new Content()
+                      .addMediaType(
+                          "*/*",
+                          new MediaType()
+                              .schema(new Schema<MediaType>().$ref("ApiErrorResponse"))));
+      operation.getResponses().addApiResponse("4XX", errorResponse);
+      operation.getResponses().addApiResponse("5XX", errorResponse);
       return operation;
     };
   }
