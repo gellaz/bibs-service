@@ -12,42 +12,42 @@
 ## System Architecture
 
 ```
-                    ┌─────────────────┐
-                    │   Keycloak 26   │
-                    └────────┬────────┘
-                             │ JWT
-           ┌─────────────────┼─────────────────┐
-           │                 │                 │
-    ┌──────┴──────┐   ┌──────┴──────┐   ┌──────┴──────┐
-    │ Customer App│   │Seller Portal│   │ Swagger UI  │
-    │  (Next.js)  │   │  (Next.js)  │   │ (dev only)  │
-    │  port 3000  │   │  port 3001  │   │  port 8080  │
-    └──────┬──────┘   └─────┬───────┘   └──────┬──────┘
-           │                │                  │
-           └────────────────┼──────────────────┘
-                            │ REST + Bearer JWT
-                   ┌────────┴────────┐
-                   │  Spring Boot 4  │
-                   │  (bibs-service) │
-                   └────────┬────────┘
-                            │
-              ┌─────────────┼─────────────┐
-              │             │             │
-         PostgreSQL      MinIO       Keycloak
-         + PostGIS                   (admin API)
+                         ┌─────────────────┐
+                         │   Keycloak 26   │
+                         └────────┬────────┘
+                                  │ JWT
+            ┌─────────────────────┼─────────────────────┐
+            │                     │                     │
+     ┌──────┴───────┐      ┌──────┴───────┐      ┌──────┴──────┐
+     │ Customer App │      │Seller Portal │      │ Swagger UI  │
+     │TanStack Start│      │TanStack Start│      │ (dev only)  │
+     │ port 3000    │      │ port 3001    │      │ port 8080   │
+     └──────┬───────┘      └──────┬───────┘      └──────┬──────┘
+            │                     │                     │
+            └─────────────────────┼─────────────────────┘
+                                  │ REST + Bearer JWT
+                         ┌────────┴────────┐
+                         │  Spring Boot 4  │
+                         │  (bibs-service) │
+                         └────────┬────────┘
+                                  │
+               ┌──────────────────┼──────────────────┐
+               │                  │                  │
+          PostgreSQL           MinIO            Keycloak
+          + PostGIS                          (admin API)
 ```
 
 ## Frontend Architecture
 
-Two separate Next.js applications (see [ADR-0017](../decisions/0017-two-frontend-apps.md)):
+Two separate TanStack Start applications (see [ADR-0017](../decisions/0017-two-frontend-apps.md)):
 
-| App           | Framework     | Audience                | Domain           | Keycloak Client |
-|---------------|---------------|-------------------------|------------------|-----------------|
-| Customer App  | Next.js (SSR) | Customers + Admin panel | `bibs.it`        | `bibs-customer` |
-| Seller Portal | Next.js (CSR) | Sellers                 | `seller.bibs.it` | `bibs-seller`   |
+| App           | Framework      | Audience                | Domain           | Keycloak Client |
+|---------------|----------------|-------------------------|------------------|-----------------|
+| Customer App  | TanStack Start | Customers + Admin panel | `bibs.it`        | `bibs-customer` |
+| Seller Portal | TanStack Start | Sellers                 | `seller.bibs.it` | `bibs-seller`   |
 
 The admin panel is a protected section within the customer app (`/admin`), guarded by the `ADMIN` realm role.
-The frontend code lives in a separate Turborepo monorepo with shared packages (UI, API client, auth).
+The frontend code lives in a separate monorepo with shared packages (UI, API client, auth).
 
 ## Deployment Model
 
