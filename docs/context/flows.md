@@ -1,5 +1,8 @@
 # Business Flows
 
+> **Detailed onboarding flows** (API calls, profile creation, step-by-step) are documented
+> in [onboarding-flows.md](onboarding-flows.md).
+
 ## Registration & Onboarding
 
 ### Identity

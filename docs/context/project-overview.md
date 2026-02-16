@@ -82,6 +82,13 @@ See `compose.yml`.
 - Explicit order types
 - Loyalty as ledger (no mutable balance without transaction)
 
+## Documentation
+
+- [Onboarding Flows](onboarding-flows.md) — Customer and seller onboarding: API calls, profile creation, VAT
+  verification
+- [Business Flows](flows.md) — High-level business processes
+- [Authorization Model](authz-model.md) — Roles and capabilities
+
 ## API Documentation
 
 The system uses OpenAPI 3 for API documentation.
