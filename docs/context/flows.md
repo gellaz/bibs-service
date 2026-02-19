@@ -17,6 +17,7 @@ Two Keycloak clients exist:
 |-----------------|----------------------------------|
 | `bibs-customer` | Customer app (`bibs.it`)         |
 | `bibs-seller`   | Seller portal (`seller.bibs.it`) |
+| `bibs-admin`    | Admin panel (`admin.bibs.it`)    |
 
 At first login, `UserSynchronizationService` reads the JWT and creates the `User` entity.
 The JWT `azp` (authorized party) claim identifies which client the user registered from.

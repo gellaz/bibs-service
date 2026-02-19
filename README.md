@@ -63,12 +63,13 @@ docker compose up -d
 
 ### Frontend Applications
 
-| App           | URL                   | Keycloak Client | Description                                            |
-|---------------|-----------------------|-----------------|--------------------------------------------------------|
-| Customer App  | http://localhost:3000 | `bibs-customer` | Customer-facing app (includes admin panel at `/admin`) |
-| Seller Portal | http://localhost:3001 | `bibs-seller`   | Seller management portal                               |
+| App           | URL                   | Keycloak Client | Description              |
+|---------------|-----------------------|-----------------|--------------------------|
+| Customer App  | http://localhost:3000 | `bibs-customer` | Customer-facing app      |
+| Seller Portal | http://localhost:3001 | `bibs-seller`   | Seller management portal |
+| Admin Panel   | http://localhost:3002 | `bibs-admin`    | Back-office admin panel  |
 
-See [ADR-0017](docs/decisions/0017-two-frontend-apps.md) for the rationale.
+See [ADR-0017](docs/decisions/0017-three-frontend-apps.md) for the rationale.
 
 ### Pre-configured Users (Keycloak `bibs` realm)
 
@@ -134,25 +135,25 @@ mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=it.bibs/bibs-se
 
 ### Architecture Decision Records (ADRs)
 
-| ADR                                                             | Title                                         |
-|-----------------------------------------------------------------|-----------------------------------------------|
-| [0001](docs/decisions/0001-monolith-package-by-feature.md)      | Monolith with package-by-feature              |
-| [0002](docs/decisions/0002-flyway-strategy.md)                  | Flyway as migration strategy                  |
-| [0003](docs/decisions/0003-auth-keycloak.md)                    | Keycloak as identity provider                 |
-| [0004](docs/decisions/0004-storage-minio.md)                    | MinIO for object storage                      |
-| [0005](docs/decisions/0005-order-types-and-fulfillment.md)      | Explicit order types and fulfillment          |
-| [0006](docs/decisions/0006-vat-async-admin-review.md)           | VAT verification as async admin review        |
-| [0007](docs/decisions/0007-loyalty-ledger-model.md)             | Loyalty implemented as ledger model           |
-| [0008](docs/decisions/0008-search-geo-with-postgis.md)          | Geo search via PostGIS                        |
-| [0009](docs/decisions/0009-stock-consistency-rules.md)          | Stock consistency and transactional integrity |
-| [0010](docs/decisions/0010-internal-domain-events.md)           | Internal domain events                        |
-| [0011](docs/decisions/0011-reservation-expiration-scheduler.md) | Reservation expiration via scheduler + event  |
-| [0012](docs/decisions/0012-openapi-as-contract.md)              | OpenAPI as first-class contract               |
-| [0013](docs/decisions/0013-error-handling-standard.md)          | Standard error handling                       |
-| [0014](docs/decisions/0014-code-formatting-spotless.md)         | Code formatting via Spotless                  |
-| [0015](docs/decisions/0015-mapping-via-mapstruct.md)            | DTO mapping via MapStruct                     |
-| [0016](docs/decisions/0016-admin-api-prefix.md)                 | Separate admin API prefix                     |
-| [0017](docs/decisions/0017-two-frontend-apps.md)                | Two separate frontend applications            |
+| ADR                                                             | Title                                                 |
+|-----------------------------------------------------------------|-------------------------------------------------------|
+| [0001](docs/decisions/0001-monolith-package-by-feature.md)      | Monolith with package-by-feature                      |
+| [0002](docs/decisions/0002-flyway-strategy.md)                  | Flyway as migration strategy                          |
+| [0003](docs/decisions/0003-auth-keycloak.md)                    | Keycloak as identity provider                         |
+| [0004](docs/decisions/0004-storage-minio.md)                    | MinIO for object storage                              |
+| [0005](docs/decisions/0005-order-types-and-fulfillment.md)      | Explicit order types and fulfillment                  |
+| [0006](docs/decisions/0006-vat-async-admin-review.md)           | VAT verification as async admin review                |
+| [0007](docs/decisions/0007-loyalty-ledger-model.md)             | Loyalty implemented as ledger model                   |
+| [0008](docs/decisions/0008-search-geo-with-postgis.md)          | Geo search via PostGIS                                |
+| [0009](docs/decisions/0009-stock-consistency-rules.md)          | Stock consistency and transactional integrity         |
+| [0010](docs/decisions/0010-internal-domain-events.md)           | Internal domain events                                |
+| [0011](docs/decisions/0011-reservation-expiration-scheduler.md) | Reservation expiration via scheduler + event          |
+| [0012](docs/decisions/0012-openapi-as-contract.md)              | OpenAPI as first-class contract                       |
+| [0013](docs/decisions/0013-error-handling-standard.md)          | Standard error handling                               |
+| [0014](docs/decisions/0014-code-formatting-spotless.md)         | Code formatting via Spotless                          |
+| [0015](docs/decisions/0015-mapping-via-mapstruct.md)            | DTO mapping via MapStruct                             |
+| [0016](docs/decisions/0016-admin-api-prefix.md)                 | Separate admin API prefix                             |
+| [0017](docs/decisions/0017-three-frontend-apps.md)              | Three frontend applications (customer, seller, admin) |
 
 ---
 

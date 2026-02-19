@@ -11,42 +11,45 @@
 
 ## System Architecture
 
-```
-                         ┌─────────────────┐
-                         │   Keycloak 26   │
-                         └────────┬────────┘
-                                  │ JWT
-            ┌─────────────────────┼─────────────────────┐
-            │                     │                     │
-     ┌──────┴───────┐      ┌──────┴───────┐      ┌──────┴──────┐
-     │ Customer App │      │Seller Portal │      │ Swagger UI  │
-     │TanStack Start│      │TanStack Start│      │ (dev only)  │
-     │ port 3000    │      │ port 3001    │      │ port 8080   │
-     └──────┬───────┘      └──────┬───────┘      └──────┬──────┘
-            │                     │                     │
-            └─────────────────────┼─────────────────────┘
-                                  │ REST + Bearer JWT
-                         ┌────────┴────────┐
-                         │  Spring Boot 4  │
-                         │  (bibs-service) │
-                         └────────┬────────┘
-                                  │
-               ┌──────────────────┼──────────────────┐
-               │                  │                  │
-          PostgreSQL           MinIO            Keycloak
-          + PostGIS                          (admin API)
+```text
+                       ┌─────────────────┐
+                       │   Keycloak 26   │
+                       └────────┬────────┘
+                                │ JWT
+            ┌─────────────┬─────────────┬─────────────┐
+            │             │             │             │           
+      ┌─────┴─────┐ ┌─────┴─────┐ ┌─────┴─────┐ ┌─────┴─────┐
+      │ Customer  │ │  Seller   │ │   Admin   │ │  Swagger  │
+      │   App     │ │  Portal   │ │   Panel   │ │    UI     │
+      │ TanStack  │ │ TanStack  │ │ TanStack  │ │(dev only) │
+      │  Start    │ │  Start    │ │  Start    │ │ port 8080 │
+      │port 3000  │ │port 3001  │ │port 3002  │ │           │
+      └─────┬─────┘ └─────┬─────┘ └─────┬─────┘ └─────┬─────┘
+            │             │             │             │
+            └─────────────┴──────┬──────┴─────────────┘
+                                 │ REST + Bearer JWT
+                         ┌───────┴───────┐
+                         │ Spring Boot 4 │
+                         │(bibs-service) │
+                         └───────┬───────┘
+                                 │
+             ┌───────────────────┼───────────────────┐
+             │                   │                   │
+        PostgreSQL             MinIO              Keycloak
+        + PostGIS                                (admin API)
 ```
 
 ## Frontend Architecture
 
-Two separate TanStack Start applications (see [ADR-0017](../decisions/0017-two-frontend-apps.md)):
+Three separate TanStack Start applications (see [ADR-0017](../decisions/0017-three-frontend-apps.md)):
 
-| App           | Framework      | Audience                | Domain           | Keycloak Client |
-|---------------|----------------|-------------------------|------------------|-----------------|
-| Customer App  | TanStack Start | Customers + Admin panel | `bibs.it`        | `bibs-customer` |
-| Seller Portal | TanStack Start | Sellers                 | `seller.bibs.it` | `bibs-seller`   |
+| App           | Framework      | Audience  | Domain           | Keycloak Client |
+|---------------|----------------|-----------|------------------|-----------------|
+| Customer App  | TanStack Start | Customers | `bibs.it`        | `bibs-customer` |
+| Seller Portal | TanStack Start | Sellers   | `seller.bibs.it` | `bibs-seller`   |
+| Admin Panel   | TanStack Start | Admins    | `admin.bibs.it`  | `bibs-admin`    |
 
-The admin panel is a protected section within the customer app (`/admin`), guarded by the `ADMIN` realm role.
+Admin panel is restricted to users with the `ADMIN` realm role.
 The frontend code lives in a separate monorepo with shared packages (UI, API client, auth).
 
 ## Deployment Model

@@ -40,7 +40,7 @@ public class UserService {
     final String identitySubject = aclService.getCurrentUserSubject();
 
     return userRepository
-        .findByIdentitySubject(identitySubject)
+        .findByIdentitySubjectWithProfiles(identitySubject)
         .map(this::mapToDTO)
         .orElseThrow(NotFoundException::new);
   }
@@ -145,12 +145,11 @@ public class UserService {
 
   private UserDTO mapToDTO(final User user) {
     final UserDTO userDTO = userMapper.toDTO(user);
-    final SellerProfile sellerProfile = sellerProfileRepository.findFirstByUserId(user.getId());
+    final SellerProfile sellerProfile = user.getSellerProfile();
     if (sellerProfile != null) {
       userDTO.setSellerProfile(userMapper.toSellerProfileDTO(sellerProfile));
     }
-    final CustomerProfile customerProfile =
-        customerProfileRepository.findFirstByUserId(user.getId());
+    final CustomerProfile customerProfile = user.getCustomerProfile();
     if (customerProfile != null) {
       userDTO.setCustomerProfile(userMapper.toCustomerProfileDTO(customerProfile));
     }

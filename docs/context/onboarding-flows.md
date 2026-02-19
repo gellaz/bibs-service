@@ -19,7 +19,7 @@ database and created/synchronized based on the Keycloak client used during login
 
 ## Customer Onboarding
 
-### Flow Summary
+### Customer Flow Summary
 
 1. User registers on the customer app (e.g. bibs.it) via Keycloak
 2. Keycloak redirects back with an authorization code
@@ -62,7 +62,7 @@ The `UserSynchronizationService` listens to `AuthenticationSuccessEvent`. On fir
 
 If a user already has a `SellerProfile` and wants to also become a customer (e.g. to purchase as well as sell):
 
-```
+```http
 POST /api/users/me/customer-profile
 Authorization: Bearer <token>
 ```
@@ -74,7 +74,7 @@ Authorization: Bearer <token>
 
 ## Seller Onboarding
 
-### Flow Summary
+### Seller Flow Summary
 
 1. User registers on the seller portal (e.g. seller.bibs.it) via Keycloak
 2. Keycloak redirects back with authorization code
@@ -109,7 +109,7 @@ Authorization: Bearer <token>
 
 #### Get Current User
 
-```
+```http
 GET /api/users/me
 Authorization: Bearer <JWT>
 ```
@@ -142,7 +142,7 @@ After onboarding:
 
 #### Onboard as Seller (Create Seller Profile)
 
-```
+```http
 POST /api/users/me/seller-profile
 Authorization: Bearer <JWT>
 Content-Type: application/json
@@ -164,7 +164,7 @@ Content-Type: application/json
 
 #### Admin: List Pending Seller Profiles
 
-```
+```http
 GET /api/seller-profiles?status=PENDING
 Authorization: Bearer <ADMIN_JWT>
 ```
@@ -173,7 +173,7 @@ Requires `ADMIN` realm role.
 
 #### Admin: Verify VAT
 
-```
+```http
 PUT /api/seller-profiles/{sellerProfileId}/verify
 Authorization: Bearer <ADMIN_JWT>
 ```
@@ -186,7 +186,7 @@ Authorization: Bearer <ADMIN_JWT>
 
 #### Admin: Reject VAT
 
-```
+```http
 PUT /api/seller-profiles/{sellerProfileId}/reject
 Authorization: Bearer <ADMIN_JWT>
 ```
@@ -211,7 +211,7 @@ See [vat-verification.md](vat-verification.md) for details.
 
 If a user already has a `CustomerProfile` and wants to become a seller:
 
-```
+```http
 POST /api/users/me/seller-profile
 Authorization: Bearer <token>
 Content-Type: application/json
@@ -240,6 +240,7 @@ Both endpoints are idempotent guards: if the profile already exists, they return
 |-----------------|--------------------------------|------|---------------------------------|
 | `bibs-customer` | Customer app (bibs.it)         | 3000 | `User` + `CustomerProfile`      |
 | `bibs-seller`   | Seller portal (seller.bibs.it) | 3001 | `User` only                     |
+| `bibs-admin`    | Admin panel (admin.bibs.it)    | 3002 | `User` only                     |
 | `bibs-swagger`  | Swagger UI (dev)               | 8080 | `User` only                     |
 
 The `azp` claim in the JWT identifies which client the user authenticated with.

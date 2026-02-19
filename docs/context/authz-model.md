@@ -11,10 +11,11 @@
 |-----------------|--------------------------|------|
 | `bibs-customer` | Customer-facing web app  | 3000 |
 | `bibs-seller`   | Seller management portal | 3001 |
+| `bibs-admin`    | Admin panel (ADMIN role) | 3002 |
 | `bibs-swagger`  | Swagger UI (dev only)    | 8080 |
 
 On first login, `UserSynchronizationService` creates the user and, for `bibs-customer`, auto-creates a
-`CustomerProfile`.
+`CustomerProfile`. Other clients create `User` only.
 
 ---
 

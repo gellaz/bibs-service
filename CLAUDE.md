@@ -10,8 +10,8 @@ All code generation and refactoring MUST comply with these constraints.
 - This is a **Spring Boot 4 monolith** with **package-by-feature** structure.
 - Layering: Controller → Service → Repository. No shortcuts.
 - Do NOT introduce microservices, new frameworks, or replace existing libraries.
-- This repository is the **backend only**. Two frontend apps (TanStack Start) live in a separate
-  monorepo and consume the REST API.
+- This repository is the **backend only**. Three frontend apps (TanStack Start) live in a separate
+  monorepo and consume the REST API: customer, seller, admin.
 - The backend is the **domain server**: all business logic, transactions, events, and persistence live here. Frontends
   are thin clients.
 
@@ -50,16 +50,17 @@ All code generation and refactoring MUST comply with these constraints.
 - Authentication via **Keycloak 26** (OIDC / JWT).
 - Realm roles: `ADMIN`, `USER`.
 - Keycloak clients:
-    - `bibs-customer` — customer-facing web app (port 3000).
-    - `bibs-seller` — seller management portal (port 3001).
-    - `bibs-swagger` — Swagger UI (development only).
+  - `bibs-customer` — customer-facing web app (port 3000).
+  - `bibs-seller` — seller management portal (port 3001).
+  - `bibs-admin` — admin panel (port 3002).
+  - `bibs-swagger` — Swagger UI (development only).
 - `UserSynchronizationService` syncs users on first login:
-    - `bibs-customer` → creates `User` + `CustomerProfile` automatically.
-    - `bibs-seller` / `bibs-swagger` → creates `User` only (seller onboarding requires VAT).
+  - `bibs-customer` → creates `User` + `CustomerProfile` automatically.
+  - `bibs-seller` / `bibs-admin` / `bibs-swagger` → creates `User` only (seller onboarding requires VAT).
 - User capabilities are derived from profiles (capability-based model):
-    - `SellerProfile` → user is a seller (store owner)
-    - `CustomerProfile` → user is a customer
-    - A user can have both profiles.
+  - `SellerProfile` → user is a seller (store owner)
+  - `CustomerProfile` → user is a customer
+  - A user can have both profiles.
 - **VAT VERIFIED gate**: only sellers with `vatVerificationStatus == VERIFIED` can create stores or manage products.
 - **Only ADMIN can verify or reject VAT.** This is enforced in the service layer.
 

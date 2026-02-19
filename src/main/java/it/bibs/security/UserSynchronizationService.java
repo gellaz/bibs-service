@@ -25,6 +25,7 @@ import it.bibs.user.UserRepository;
  * <ul>
  *   <li>{@code bibs-customer} → creates {@link User} + {@link CustomerProfile}
  *   <li>{@code bibs-seller} → creates {@link User} only (seller onboarding requires VAT)
+ *   <li>{@code bibs-admin} → creates {@link User} only (admin panel, ADMIN role required)
  *   <li>{@code bibs-swagger} → creates {@link User} only (development client)
  * </ul>
  */
@@ -35,9 +36,10 @@ public class UserSynchronizationService {
 
   private static final String CLIENT_CUSTOMER = "bibs-customer";
   private static final String CLIENT_SELLER = "bibs-seller";
+  private static final String CLIENT_ADMIN = "bibs-admin";
   private static final String CLIENT_SWAGGER = "bibs-swagger";
   private static final Set<String> KNOWN_CLIENTS =
-      Set.of(CLIENT_CUSTOMER, CLIENT_SELLER, CLIENT_SWAGGER);
+      Set.of(CLIENT_CUSTOMER, CLIENT_SELLER, CLIENT_ADMIN, CLIENT_SWAGGER);
 
   private final UserRepository userRepository;
   private final CustomerProfileRepository customerProfileRepository;

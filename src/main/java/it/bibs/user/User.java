@@ -13,6 +13,7 @@ import lombok.Setter;
 
 import it.bibs.customer_profile.CustomerProfile;
 import it.bibs.entity.AuditableEntity;
+import it.bibs.seller_profile.SellerProfile;
 import it.bibs.store_member.StoreMember;
 import it.bibs.user_address.UserAddress;
 
@@ -42,4 +43,7 @@ public class User extends AuditableEntity {
 
   @OneToOne(mappedBy = "user")
   private CustomerProfile customerProfile;
+
+  @OneToOne(mappedBy = "user")
+  private SellerProfile sellerProfile;
 }

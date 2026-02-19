@@ -13,7 +13,7 @@ The platform requires:
 - JWT tokens
 - Admin-only VAT verification
 - Multi-role users
-- Two separate frontend applications (customer app + seller portal)
+- Three frontend applications (customer app, seller portal, admin panel)
 
 ## Decision
 
@@ -32,6 +32,7 @@ No client-level roles. All business capabilities are derived from database profi
 |-----------------|--------------------------|------------------|
 | `bibs-customer` | Customer-facing web app  | `localhost:3000` |
 | `bibs-seller`   | Seller management portal | `localhost:3001` |
+| `bibs-admin`    | Admin panel (ADMIN role) | `localhost:3002` |
 | `bibs-swagger`  | Swagger UI (dev only)    | `localhost:8080` |
 
 All clients are **public** (PKCE), standard flow, with the `realm roles` protocol mapper.
@@ -54,6 +55,7 @@ A user can have both `SellerProfile` and `CustomerProfile` (cross-onboarding).
 
 - `bibs-customer` → creates `User` + `CustomerProfile`
 - `bibs-seller` → creates `User` only (seller onboarding requires VAT submission)
+- `bibs-admin` → creates `User` only (admin panel, ADMIN role required)
 - `bibs-swagger` → creates `User` only
 
 ## Rationale
@@ -67,7 +69,7 @@ A user can have both `SellerProfile` and `CustomerProfile` (cross-onboarding).
 
 - Keycloak realm configuration is source of truth for **authentication**
 - Authorization is split:
-    - Realm-level: `ADMIN` role (JWT)
-    - Domain-level: profiles and store membership (database)
+  - Realm-level: `ADMIN` role (JWT)
+  - Domain-level: profiles and store membership (database)
 - No client roles to maintain or synchronize
 - Adding new capabilities = new database entity, not Keycloak configuration
